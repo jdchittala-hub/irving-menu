@@ -6,7 +6,7 @@ function Header() {
   return (
     <header className="
       w-full 
-      bg-orange-800 
+      bg-orange-300
       border-b-2 border-white 
       shadow-2xl
       sticky top-0 z-50
