@@ -91,13 +91,15 @@ export default MenuItems;
 function MenuCard({ item, isDisabled, label, setSelectedItem }) {
   const [loaded, setLoaded] = useState(false);
 
-  const fallbackImage = "/assets/dummyImage.jpeg"; // ✅ correct path
+  const fallbackImage = "/assets/dummyImage.jpeg";
 
   const [imgSrc, setImgSrc] = useState(
     item.image
       ? pb.files.getUrl(item, item.image)
       : fallbackImage
   );
+
+  const [isFallback, setIsFallback] = useState(!item.image);
 
   return (
     <div
@@ -116,17 +118,16 @@ function MenuCard({ item, isDisabled, label, setSelectedItem }) {
 
       <div className="relative">
 
-        {/* Skeleton */}
         {!loaded && (
           <div className="absolute inset-0 bg-gray-200 animate-pulse z-0" />
         )}
 
-        {/* Image */}
         <img
           src={imgSrc}
           onLoad={() => setLoaded(true)}
           onError={() => {
-            setImgSrc(fallbackImage); // ✅ fallback works now
+            setImgSrc(fallbackImage);
+            setIsFallback(true);
             setLoaded(true);
           }}
           className={`
@@ -136,10 +137,10 @@ function MenuCard({ item, isDisabled, label, setSelectedItem }) {
             transition-all duration-500
             z-10 relative
             ${loaded ? "opacity-100 scale-100" : "opacity-0 scale-105"}
+            ${isFallback ? "brightness-75" : ""}   // 🔥 FIXED
           `}
         />
 
-        {/* Overlay */}
         {isDisabled && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
             <span className="bg-[#CD7D1C] px-4 py-1 rounded-full text-white text-xs sm:text-sm">

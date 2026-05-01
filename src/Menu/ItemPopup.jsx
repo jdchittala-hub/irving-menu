@@ -1,5 +1,6 @@
 import pb from "../API/api";
 import Header from "./Header";
+import { useState, useEffect } from "react";
 
 function ItemPopup({ items, selectedIndex, setSelectedIndex }) {
   const selectedItem =
@@ -7,13 +8,33 @@ function ItemPopup({ items, selectedIndex, setSelectedIndex }) {
 
   if (!selectedItem) return null;
 
+  const fallbackImage = "/assets/dummyImage.jpeg";
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [imgSrc, setImgSrc] = useState("");
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [isFallback, setIsFallback] = useState(false);
+
+  // 🔥 update image when item changes
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (!selectedItem) return;
+
+    if (selectedItem.image) {
+      setImgSrc(pb.files.getUrl(selectedItem, selectedItem.image));
+      setIsFallback(false);
+    } else {
+      setImgSrc(fallbackImage);
+      setIsFallback(true);
+    }
+  }, [selectedItem]);
+
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col">
 
       {/* HEADER */}
       <Header />
 
-      {/* CONTENT AREA (NO GAP) */}
       <div
         className="flex-1 flex items-center justify-center"
         onClick={() => setSelectedIndex(null)}
@@ -36,14 +57,18 @@ function ItemPopup({ items, selectedIndex, setSelectedIndex }) {
           {/* IMAGE */}
           <div className="relative h-[75%] sm:h-[80%]">
             <img
-              src={
-                selectedItem.image
-                  ? pb.files.getUrl(selectedItem, selectedItem.image)
-                  : "/placeholder-food.jpg"
-              }
-              className="w-full h-full object-cover"
+              src={imgSrc}
+              onError={() => {
+                setImgSrc(fallbackImage);
+                setIsFallback(true);
+              }}
+              className={`
+                w-full h-full object-cover transition-all duration-500
+                ${isFallback ? "opacity-80 scale-95" : "opacity-100"}
+              `}
             />
 
+            {/* gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
 
             {/* PREV */}
