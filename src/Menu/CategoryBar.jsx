@@ -10,9 +10,14 @@ function CategoryBar({
 
   const navigate = useNavigate();
 
+  // 🔥 REMOVE unavailable categories completely
+  const filteredMenu = MENU.filter(
+    (cat) => cat.unavailable !== true
+  );
+
   return (
 
-    <div className="sticky top-0 z-30 backdrop-blur-md bg-[#fff5ea]  shadow-md border-b border-[#728D3E]">
+    <div className="sticky top-0 z-30 backdrop-blur-md bg-[#fff5ea] shadow-md border-b border-[#728D3E]">
 
       <div className="
         flex items-center
@@ -39,10 +44,10 @@ function CategoryBar({
           <Home size={18} className="sm:w-[20px] sm:h-[20px] md:w-[22px] md:h-[22px]" />
         </button>
 
+        {/* 🔥 USE FILTERED MENU */}
 
-        {MENU.map((cat) => {
+        {filteredMenu.map((cat) => {
 
-          const isOff = cat.unavailable === true;
           const isActive = activeCategory?.id === cat.id;
 
           return (
@@ -84,10 +89,7 @@ function CategoryBar({
 
               group
               `}
-
             >
-
-              {/* Hover animation */}
 
               {!isActive && (
                 <span
@@ -101,25 +103,8 @@ function CategoryBar({
                 />
               )}
 
-              {/* TEXT */}
-
               <span className="relative flex items-center gap-1 sm:gap-2 group-hover:text-white">
-
                 {cat.name}
-
-                {isOff && (
-                  <span className="
-                  text-[10px] sm:text-xs
-                  bg-[#CD7D1C]
-                  text-white
-                  px-1.5 sm:px-2
-                  py-[1px]
-                  rounded-full
-                  ">
-                    OFF
-                  </span>
-                )}
-
               </span>
 
             </button>

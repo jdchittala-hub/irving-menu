@@ -7,67 +7,61 @@ import Menu from "./Menu/Menu";
 import Home from "./HomePage/Home";
 import Preloader from "./Preloader/preloader";
 
-import useBackground from "./hooks/useBackground";
 import { refreshAuth } from "./API/api";
 import ScrollToTop from "./BackArrow/ScrollTop";
 
 import usePullToRefresh from "./hooks/usePullToRefresh";
 
 function App() {
-  const backgroundImage = useBackground();
 
   const [loading, setLoading] = useState(true);
-  const [showLoader, setShowLoader] = useState(false);
 
-  // 🔥 refresh function
   const handleRefresh = () => {
     console.log("Refreshing...");
-    
-    // Option 1: full reload (simple)
-    window.location.reload();
-
-    // Option 2 (better): trigger state refresh
-    // setKey(prev => prev + 1);
+    setTimeout(() => {
+      window.location.reload();
+    }, 800); // slight delay for animation
   };
 
-  // 🔥 attach pull-to-refresh
-  usePullToRefresh(handleRefresh);
-
-  useEffect(() => {
-    if (!backgroundImage) return;
-
-    const timer = setTimeout(() => {
-      setShowLoader(true);
-    }, 400);
-
-    const img = new Image();
-    img.src = backgroundImage;
-
-    img.onload = () => {
-      clearTimeout(timer);
-      setLoading(false);
-      setShowLoader(false);
-    };
-
-    return () => clearTimeout(timer);
-  }, [backgroundImage]);
+  const { pullDistance, isRefreshing } =
+    usePullToRefresh(handleRefresh);
 
   useEffect(() => {
     refreshAuth();
+
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="relative min-h-screen">
-      {loading && showLoader && <Preloader />}
+    <div className="relative min-h-screen bg-[#fff5ea]">
 
-      {backgroundImage && (
-        <div
-          className="fixed inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: `url(${backgroundImage})` }}
-        />
-      )}
+      {loading && <Preloader />}
 
-      <div className="fixed inset-0 -z-10 bg-black/40" />
+      {/* 🔥 PULL INDICATOR */}
+      <div
+        className="fixed top-0 left-0 w-full flex justify-center z-[1000] pointer-events-none"
+        style={{
+          transform: `translateY(${Math.min(pullDistance, 100)}px)`,
+          transition: pullDistance === 0 ? "transform 0.3s ease" : "none",
+        }}
+      >
+        {(pullDistance > 20 || isRefreshing) && (
+          <div className="mt-2 bg-[#728D3E] text-white px-4 py-2 rounded-full shadow flex items-center gap-2">
+
+            {/* Spinner */}
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+
+            <span className="text-sm">
+              {isRefreshing ? "Refreshing..." : "Pull to refresh"}
+            </span>
+
+          </div>
+        )}
+      </div>
 
       <HashRouter>
         <ScrollToTop />
