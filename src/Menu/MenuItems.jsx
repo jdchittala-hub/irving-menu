@@ -91,9 +91,13 @@ export default MenuItems;
 function MenuCard({ item, isDisabled, label, setSelectedItem }) {
   const [loaded, setLoaded] = useState(false);
 
-  const imageUrl = item.image
-    ? pb.files.getUrl(item, item.image)
-    : "/placeholder-food.jpg";
+  const fallbackImage = "/assets/dummyImage.jpeg"; // ✅ correct path
+
+  const [imgSrc, setImgSrc] = useState(
+    item.image
+      ? pb.files.getUrl(item, item.image)
+      : fallbackImage
+  );
 
   return (
     <div
@@ -112,19 +116,19 @@ function MenuCard({ item, isDisabled, label, setSelectedItem }) {
 
       <div className="relative">
 
-        {/* 🔥 Skeleton */}
+        {/* Skeleton */}
         {!loaded && (
-          <div className="
-            absolute inset-0
-            bg-gray-200 animate-pulse
-            z-0
-          " />
+          <div className="absolute inset-0 bg-gray-200 animate-pulse z-0" />
         )}
 
-        {/* 🔥 Image */}
+        {/* Image */}
         <img
-          src={imageUrl}
+          src={imgSrc}
           onLoad={() => setLoaded(true)}
+          onError={() => {
+            setImgSrc(fallbackImage); // ✅ fallback works now
+            setLoaded(true);
+          }}
           className={`
             w-full
             h-[180px] sm:h-[200px] md:h-[220px] xl:h-[350px]
@@ -135,7 +139,7 @@ function MenuCard({ item, isDisabled, label, setSelectedItem }) {
           `}
         />
 
-        {/* 🔥 Overlay (always show if disabled) */}
+        {/* Overlay */}
         {isDisabled && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
             <span className="bg-[#CD7D1C] px-4 py-1 rounded-full text-white text-xs sm:text-sm">
@@ -147,7 +151,6 @@ function MenuCard({ item, isDisabled, label, setSelectedItem }) {
       </div>
 
       <div className="p-3 sm:p-4 text-center">
-
         <h3 className="font-semibold text-[#7a4b18] text-sm sm:text-base">
           {item.name}
         </h3>
@@ -155,7 +158,6 @@ function MenuCard({ item, isDisabled, label, setSelectedItem }) {
         <p className="text-green-700 font-bold mt-1 text-sm sm:text-base">
           ${item.price}
         </p>
-
       </div>
 
     </div>
